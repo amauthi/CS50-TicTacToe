@@ -21,6 +21,10 @@ user = None
 board = ttt.initial_state()
 ai_turn = False
 
+# if mode == 0 => EASY (random choice by AI)
+# if mode == 1 => HARD (minimax algo)
+mode = None
+
 while True:
 
     for event in pygame.event.get():
@@ -29,8 +33,8 @@ while True:
 
     screen.fill(black)
 
-    # Let user choose a player.
-    if user is None:
+    # Let user choose a player and a mode.
+    if user is None or mode is None:
 
         # Draw title
         title = largeFont.render("Play Tic-Tac-Toe", True, white)
@@ -52,17 +56,42 @@ while True:
         playORect.center = playOButton.center
         pygame.draw.rect(screen, white, playOButton)
         screen.blit(playO, playORect)
+        
+        # Draw buttons easy (random choice) or hard (minimax)
+        playEasyButton = pygame.Rect((width / 8), 1.5 * (height / 2), width / 4, 50)
+        playEasy = mediumFont.render("Play EASY", True, black)
+        playEasyRect = playEasy.get_rect()
+        playEasyRect.center = playEasyButton.center
+        pygame.draw.rect(screen, white, playEasyButton)
+        screen.blit(playEasy, playEasyRect)
+
+        playHardButton = pygame.Rect(5 * (width / 8), 1.5 * (height / 2), width / 4, 50)
+        playHard = mediumFont.render("Play HARD", True, black)
+        playHardRect = playHard.get_rect()
+        playHardRect.center = playHardButton.center
+        pygame.draw.rect(screen, white, playHardButton)
+        screen.blit(playHard, playHardRect)       
 
         # Check if button is clicked
         click, _, _ = pygame.mouse.get_pressed()
         if click == 1:
             mouse = pygame.mouse.get_pos()
             if playXButton.collidepoint(mouse):
+                print("X button pressed")
                 time.sleep(0.2)
                 user = ttt.X
             elif playOButton.collidepoint(mouse):
+                print("O button pressed")
                 time.sleep(0.2)
                 user = ttt.O
+            elif playEasyButton.collidepoint(mouse):
+                print("EASY button pressed")
+                time.sleep(0.2)
+                mode = 0
+            elif playHardButton.collidepoint(mouse):
+                print("HARD button pressed")
+                time.sleep(0.2)
+                mode = 1
 
     else:
 
@@ -112,7 +141,14 @@ while True:
         if user != player and not game_over:
             if ai_turn:
                 time.sleep(0.5)
-                move = ttt.minimax(board)
+                
+                if mode == 0:
+                    print("mode 0")
+                    move = ttt.randomPlay(board)
+                elif mode == 1:
+                    print("mode 1")
+                    move = ttt.minimax(board)
+
                 board = ttt.result(board, move)
                 ai_turn = False
             else:
@@ -140,6 +176,7 @@ while True:
                 if againButton.collidepoint(mouse):
                     time.sleep(0.2)
                     user = None
+                    mode = None
                     board = ttt.initial_state()
                     ai_turn = False
 
